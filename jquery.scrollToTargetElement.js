@@ -1,16 +1,21 @@
 /*!
- * jquery.scrollToTargetElement.js v1.0 - jQuery plugin for Smooth scroll to target elements.
+ * jquery.scrollToTargetElement.js v1.1 - jQuery plugin for Smooth scroll to target elements.
  * Copyright (c) 2014 Lei Hau'oli Co.,Ltd. - https://github.com/leihauoli/jquery.scrollToTargetElement.js
  * License: MIT
  */
 ;(function ($) {
 	var ScrollToTargetElement = function ($trigger, options) {
 		this.$body = $('body');
+		this.$document = $(document);
 		this.$win = $(window);
 		this.$trigger = $trigger;
 		this.$elementTarget = $(options.selector);
 		this.duration = options.duration;
+		this.eventHandler = options.eventHandler;
 		this.easing = options.easing;
+		this.adjust = options.adjust;
+		this.$elementAdjust = options.$elementAdjust;
+		this.start = options.start;
 		this.finish = options.finish;
 
 		if (!this.$elementTarget.length) {
@@ -27,13 +32,16 @@
 			var _self = this;
 
 			this.$trigger.on('click', function (e) {
-				_self.scrollToTargetElement(e);
+				e.preventDefault();
+			});
+			this.$trigger.on(this.eventHandler, function () {
+				_self.scrollToTargetElement();
 			});
 		},
 		getScrollTopTarget: function () {
 			var
-				scrollTopTarget = this.$elementTarget.offset().top,
-				offsetTopLargest = this.$body.height() - this.$win.height();
+				scrollTopTarget = this.$elementTarget.offset().top + this.adjust - this.$elementAdjust.height(),
+				offsetTopLargest = this.$document.height() - this.$win.height();
 
 			if (scrollTopTarget > offsetTopLargest) {
 				scrollTopTarget = offsetTopLargest;
@@ -41,22 +49,26 @@
 
 			return scrollTopTarget;
 		},
-		scrollToTargetElement: function (e) {
+		scrollToTargetElement: function () {
 			var
 				scrollTopTarget = this.getScrollTopTarget();
+
+			this.start();
 
 			this.$body.stop().animate({
 				scrollTop: scrollTopTarget
 			}, this.duration, this.easing, this.finish);
-
-			e.preventDefault();
 		}
 	};
 	$.fn.scrollToTargetElement = function (settings) {
 		var options = $.extend({
 			selector: 'body',
+			eventHandler: 'click',
 			duration: 500,
 			easing: 'swing',
+			adjust: 0,
+			$elementAdjust: $(),
+			start: function () {},
 			finish: function () {}
 		}, settings);
 
