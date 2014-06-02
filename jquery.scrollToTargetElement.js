@@ -50,10 +50,10 @@
 			return scrollTopTarget;
 		},
 		scrollToTargetElement: function () {
+			this.start();
+
 			var
 				scrollTopTarget = this.getScrollTopTarget();
-
-			this.start();
 
 			this.$body.stop().animate({
 				scrollTop: scrollTopTarget
